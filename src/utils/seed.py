@@ -27,3 +27,4 @@ def set_seed(seed: int = 42) -> None:
         tf.random.set_seed(seed)
     except ImportError:
         pass
+

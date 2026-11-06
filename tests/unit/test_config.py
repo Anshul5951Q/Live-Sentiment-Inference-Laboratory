@@ -34,3 +34,4 @@ class TestConfig:
         assert custom_data_dir.exists()
         assert custom_models_dir.exists()
         assert custom_results_dir.exists()
+

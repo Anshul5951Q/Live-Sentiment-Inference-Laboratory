@@ -1,0 +1,58 @@
+{
+  "experiment_id": "EXP-LR-BASELINE-42",
+  "timestamp": "2026-11-06T10:58:27.126775+00:00",
+  "random_seed": 42,
+  "dataset": {
+    "name": "Yelp/yelp_review_full",
+    "train_samples": 19200,
+    "val_samples": 4800,
+    "eval_subset_samples": 3000,
+    "class_distribution_eval": {
+      "1": 1000,
+      "0": 1000,
+      "2": 1000
+    }
+  },
+  "timings_seconds": {
+    "vectorizer_fitting": 3.053,
+    "classifier_training": 1.108,
+    "calibration_fitting": 0.023,
+    "evaluation_duration": 0.028,
+    "total_pipeline_duration": 8.548
+  },
+  "evaluation_summary": {
+    "uncalibrated": {
+      "accuracy": 0.7383333333333333,
+      "macro_f1": 0.7370187534812688,
+      "brier_score": 0.3689837367704249,
+      "log_loss": 0.6321239760144608,
+      "ece": 0.054833490777722406
+    },
+    "calibrated": {
+      "accuracy": 0.742,
+      "macro_f1": 0.738002392454724,
+      "brier_score": 0.36785069336389437,
+      "log_loss": 0.6257324537402833,
+      "ece": 0.03795901577979703
+    },
+    "comparison": {
+      "accuracy_delta": 0.003666666666666707,
+      "macro_f1_delta": 0.0009836389734552142,
+      "brier_score_uncalibrated": 0.3689837367704249,
+      "brier_score_calibrated": 0.36785069336389437,
+      "brier_improvement": 0.0011330434065305317,
+      "log_loss_uncalibrated": 0.6321239760144608,
+      "log_loss_calibrated": 0.6257324537402833,
+      "log_loss_improvement": 0.006391522274177497,
+      "ece_uncalibrated": 0.054833490777722406,
+      "ece_calibrated": 0.03795901577979703,
+      "ece_improvement": 0.016874474997925375
+    }
+  },
+  "artifacts": {
+    "tfidf_vectorizer": "artifacts\\models\\logistic_regression\\tfidf_vectorizer.joblib",
+    "uncalibrated_model": "artifacts\\models\\logistic_regression\\logistic_regression.joblib",
+    "calibrated_model": "artifacts\\models\\logistic_regression\\calibrated_logistic_regression.joblib",
+    "predictions": "artifacts\\results\\logistic_regression\\predictions.parquet"
+  }
+}

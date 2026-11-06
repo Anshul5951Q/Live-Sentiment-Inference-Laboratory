@@ -36,3 +36,4 @@ Standardized schema across all experiment splits:
 - **Deterministic Sampling:** All sampling and partitioning are seeded with `seed=42`.
 - **Index Tracking:** The exact sample indices of the 3,000 evaluation subset are recorded in `artifacts/data/eval_subset_metadata.json`.
 - **Zero Leakage:** Set-intersection checks between review texts in train, validation, and test sets are validated during dataset generation and enforced in the test suite (`test_splitter.py`).
+

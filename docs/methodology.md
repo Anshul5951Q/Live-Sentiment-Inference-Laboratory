@@ -62,8 +62,41 @@ For each model, we calculate:
 - **Probability Calibration:**
   - Multiclass Brier Score:
     $$BS = \frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K (p_{ik} - y_{ik})^2$$
-  - Reliability Diagrams (plotting mean predicted probability vs true fraction of positives per probability bin).
-  - Platt scaling / Isotonic regression applied via `CalibratedClassifierCV` on training/val sets only.
+  - Log Loss (Cross-Entropy):
+    $$\mathcal{L} = -\frac{1}{N} \sum_{i=1}^N \sum_{k=1}^K y_{ik} \log(p_{ik})$$
+  - Expected Calibration Error (ECE):
+    $$\text{ECE} = \sum_{m=1}^M \frac{|B_m|}{N} |\text{acc}(B_m) - \text{conf}(B_m)|$$
+  - Reliability Diagrams (plotting mean predicted confidence vs true fraction of correct predictions per probability bin).
+  - Platt scaling / Isotonic regression applied via `CalibratedClassifierCV` on validation data only.
+
+---
+
+## 5. Milestone 2: Baseline Discriminative Benchmark (Logistic Regression)
+
+### 5.1 Formulation & Feature Extraction
+- **Feature Extraction:** `TextTfidfVectorizer` with 10,000 max features, unigram + bigram range `(1, 2)`, sublinear term frequency scaling ($1 + \log(\text{tf})$), and frequency filtering (`min_df=2`, `max_df=0.95`).
+- **Classifier:** Multi-class `LogisticRegression` using L-BFGS solver with cross-entropy loss and $L_2$ regularization ($C=1.0$).
+- **Calibration Engine:** `CalibratedClassifierCV` (sigmoid Platt scaling) fitted on the 4,800 validation samples (`val_real.parquet`). The 3,000 evaluation subset was strictly sequestered.
+
+### 5.2 Empirical Findings on 3,000 Fixed Evaluation Subset
+- **Uncalibrated Model:**
+  - Accuracy: **0.7383** (73.83%)
+  - Macro F1: **0.7370**
+  - Brier Score: **0.3690**
+  - Log Loss: **0.6321**
+  - ECE: **0.0548**
+- **Calibrated Model (Sigmoid):**
+  - Accuracy: **0.7420** (74.20%) [$\mathbf{+0.37\%}$ improvement]
+  - Macro F1: **0.7380** [$\mathbf{+0.0010}$]
+  - Brier Score: **0.3679** [$\mathbf{-0.0011}$ improvement]
+  - Log Loss: **0.6257** [$\mathbf{-0.0064}$ improvement]
+  - ECE: **0.0380** [$\mathbf{-0.0169}$ improvement, a **30.6% reduction in calibration error**]
+- **Per-Class Breakdown:**
+  - *Negative (Class 0):* Precision = 0.7815, Recall = 0.8370, F1 = 0.8083 (Support: 1,000)
+  - *Neutral (Class 1):* Precision = 0.6709, Recall = 0.5790, F1 = 0.6216 (Support: 1,000)
+  - *Positive (Class 2):* Precision = 0.7598, Recall = 0.8100, F1 = 0.7841 (Support: 1,000)
+
+**Key Finding:** Neutral reviews exhibit lower recall (0.5790) compared to extreme sentiments (0.8370 and 0.8100), reflecting the common linguistic ambiguity of 3-star reviews that blend positive and negative aspects. Sigmoid calibration significantly improved probability reliability without compromising discriminative accuracy.
 
 ---
 
@@ -72,3 +105,4 @@ For each model, we calculate:
 - The academic assignment syllabus refers to GPT-based review generation.
 - **Provider Substitution:** Due to open free-tier API quotas and developer accessibility, **Google Gemini** (`gemini-1.5-flash` / `gemini-2.0-flash`) is implemented via the official `google-genai` SDK.
 - **Conceptual Clarification:** The Gemini API is accessed in an in-context generation and inference role. Generating 500 synthetic reviews to augment a tabular training CSV does **not** fine-tune or update the weights of the Gemini base model. The discriminative models (Logistic Regression, LSTM, BERT) are the ones retrained in Condition B.
+

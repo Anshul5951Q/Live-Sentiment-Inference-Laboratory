@@ -29,15 +29,16 @@ Thumbs.db
 htmlcov/
 
 # Model checkpoints & heavy artifacts (do not commit large binaries to git)
-artifacts/models/*.keras
-artifacts/models/*.h5
-artifacts/models/*.pt
-artifacts/models/*.bin
-artifacts/models/*.joblib
+*.joblib
+*.parquet
+*.arrow
+*.feather
+*.keras
+*.h5
+*.pt
+*.bin
 artifacts/models/bert_checkpoint/
 artifacts/data/yelp_cache/
-artifacts/data/*.parquet
-artifacts/data/*.arrow
 artifacts/data/*.feather
 !artifacts/data/README.md
 !artifacts/models/README.md
@@ -45,3 +46,4 @@ artifacts/data/*.feather
 
 # Streamlit local state & secrets
 .streamlit/secrets.toml
+

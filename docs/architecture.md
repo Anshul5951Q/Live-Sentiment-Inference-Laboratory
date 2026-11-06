@@ -66,11 +66,13 @@ The system follows Clean Architecture and Domain-Driven Design (DDD):
   - Used uniformly across all models (including Gemini API evaluation) to prevent budget exhaustion while ensuring direct, statistically sound comparisons.
   - **Leakage Prevention:** Split stratification occurs before feature extraction; zero overlap is strictly enforced and verified via test assertions.
 
-### 2.2 Logistic Regression & Multiclass Calibration
-- **Feature Extraction:** TF-IDF vectorizer (unigrams + bigrams, sublinear TF scaling).
-- **Base Classifier:** Scikit-learn `LogisticRegression` (multinomial / cross-entropy loss).
-- **Calibration Engine:** `CalibratedClassifierCV` using sigmoid or isotonic methods fitted strictly on training/validation folds.
-- **Evaluation:** Reliability diagrams (calibration curves) before and after calibration, همراه with multiclass Brier score and Expected Calibration Error (ECE). The test set is never used for fitting calibration.
+### 2.2 Logistic Regression & Multiclass Calibration (Implemented & Verified in Milestone 2)
+- **Feature Extraction:** `TextTfidfVectorizer` (`src/models/tfidf_vectorizer.py`) implementing scikit-learn `TfidfVectorizer` with `max_features=10000`, `ngram_range=(1, 2)`, `sublinear_tf=True`, `min_df=2`, `max_df=0.95`. Strict leakage barrier: fitted exclusively on `train_real.parquet`.
+- **Base Classifier:** `LogisticRegressionClassifier` (`src/models/logistic_regression.py`) implementing multi-class `LogisticRegression` with cross-entropy loss and L-BFGS optimizer ($C=1.0$, `max_iter=1000`).
+- **Calibration Engine:** `MulticlassCalibrator` (`src/models/calibration.py`) wrapping the base model with `CalibratedClassifierCV` via `FrozenEstimator` (scikit-learn 1.4+ API compatible with fallback to `cv="prefit"`). Fitted strictly on `val_real.parquet` (4,800 samples).
+- **Inference Service:** `SentimentPredictor` (`src/models/predictor.py`) offering single and batch review classification, confidence computation, and returning both uncalibrated and calibrated probability distributions.
+- **Evaluation Engine:** `classification_metrics.py` computing accuracy, macro/weighted F1, confusion matrix, multiclass Brier score, log loss, ECE, confidence distribution, and reliability diagram coordinates.
+- **Visualizer:** `visualizer.py` generating publication-quality confusion matrices, reliability curves, confidence distribution histograms, and metric comparisons saved to `artifacts/results/logistic_regression/`.
 
 ### 2.3 Keras Bidirectional LSTM Architecture
 - **Input Pipeline:** Text tokenization fit strictly on training data; out-of-vocabulary (`<OOV>`) token handling; configurable sequence padding (`max_length=128`).
@@ -140,3 +142,4 @@ SentimentLab-AI/
 ├── tests/                   # Pytest unit and integration suite
 └── docs/                    # Academic documentation
 ```
+

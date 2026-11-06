@@ -49,3 +49,4 @@ def load_dataframe(file_path: Union[str, Path]) -> pd.DataFrame:
         return pd.read_csv(path)
     else:
         raise ValueError(f"Unsupported dataframe format: {path.suffix}")
+

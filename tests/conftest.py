@@ -67,3 +67,4 @@ def sample_duplicates_df() -> pd.DataFrame:
         {"text": "   ", "label": 2},  # Empty whitespace
         {"text": "Terrible place.<br/><br/>", "label": 0},
     ])
+

@@ -86,3 +86,4 @@ class TestSplitter:
         
         with pytest.raises(ValueError, match="Data leakage detected"):
             verify_no_leakage(train_df, val_df, test_df)
+

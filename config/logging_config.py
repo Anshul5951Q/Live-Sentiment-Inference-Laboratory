@@ -21,3 +21,4 @@ def setup_logger(name: Optional[str] = None, level: int = logging.INFO) -> loggi
         logger.propagate = False
         
     return logger
+

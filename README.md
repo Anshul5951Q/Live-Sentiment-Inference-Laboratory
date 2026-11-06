@@ -2,7 +2,8 @@
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3119/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B.svg)](https://streamlit.io)
-[![License](https://img.shields.io/badge/License-Academic_Use-green.svg)]()
+[![Milestone 1](https://img.shields.io/badge/Milestone%201-Verified-success.svg)]()
+[![Milestone 2](https://img.shields.io/badge/Milestone%202-Complete-success.svg)]()
 [![Code Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-brightgreen.svg)]()
 
 > **Academic Mini-Project P4:** An end-to-end experimental laboratory comparing discriminative machine learning models (Logistic Regression, Keras BiLSTM, Hugging Face BERT) with generative foundation models (Google Gemini) for three-class sentiment analysis (Negative, Neutral, Positive).
@@ -104,12 +105,17 @@ The assignment syllabus references GPT-based synthetic review generation. **Goog
    python scripts/download_and_preprocess.py
    ```
 
-6. **Run automated test suite:**
+6. **Train and evaluate Logistic Regression baseline:**
+   ```powershell
+   python scripts/train_logistic_regression.py
+   ```
+
+7. **Run automated test suite (41 tests):**
    ```powershell
    pytest -v
    ```
 
-7. **Launch Streamlit Web Application:**
+8. **Launch Streamlit Web Application (Available in Milestone 8):**
    ```powershell
    streamlit run ui/app.py
    ```
@@ -137,3 +143,4 @@ SentimentLab-AI/
 ├── docs/                # Architecture, methodology, model cards
 └── tests/               # Unit and integration pytest suite
 ```
+
