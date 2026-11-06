@@ -74,30 +74,39 @@ The system follows Clean Architecture and Domain-Driven Design (DDD):
 - **Evaluation Engine:** `classification_metrics.py` computing accuracy, macro/weighted F1, confusion matrix, multiclass Brier score, log loss, ECE, confidence distribution, and reliability diagram coordinates.
 - **Visualizer:** `visualizer.py` generating publication-quality confusion matrices, reliability curves, confidence distribution histograms, and metric comparisons saved to `artifacts/results/logistic_regression/`.
 
-### 2.3 Keras Bidirectional LSTM Architecture
-- **Input Pipeline:** Text tokenization fit strictly on training data; out-of-vocabulary (`<OOV>`) token handling; configurable sequence padding (`max_length=128`).
-- **Layers:**
-  1. `Embedding(input_dim=20000, output_dim=128, mask_zero=True)`
-  2. `Bidirectional(LSTM(64, return_sequences=False, dropout=0.2, recurrent_dropout=0.2))`
-  3. `Dense(64, activation='relu')`
-  4. `Dropout(0.3)`
-  5. `Dense(3, activation='softmax')`
-- **Training Safeguards:** `EarlyStopping(monitor='val_loss', patience=3, restore_best_weights=True)` and checkpointing of the best model to `artifacts/models/lstm_model.keras`.
+### 2.3 Keras Bidirectional LSTM Architecture (Implemented & Verified in Milestone 3)
+- **Input Pipeline:** Custom integer-sequence `TextTokenizer` (`src/models/text_tokenizer.py`) fitted strictly on `train_real.parquet` (19,200 samples) with `vocab_size=20000`, sequence padding/truncation `max_length=128`, `<PAD>=0`, and `<OOV>=1`. Tokenizer mapping is serialized to `artifacts/models/lstm/tokenizer.json`.
+- **Model Architecture:** `KerasBiLSTMClassifier` (`src/models/lstm_classifier.py`):
+  1. `Input(shape=(128,), dtype=tf.int32, name="input_ids")`
+  2. `Embedding(input_dim=20000, output_dim=128, mask_zero=True, name="embedding")`
+  3. `Bidirectional(LSTM(units=64, dropout=0.3, recurrent_dropout=0.0, return_sequences=False), name="bidirectional_lstm")` *(recurrent_dropout=0.0 preserves cuDNN hardware acceleration compatibility)*
+  4. `Dropout(rate=0.3, name="dropout_1")`
+  5. `Dense(units=64, activation="relu", name="dense_features")`
+  6. `Dropout(rate=0.3, name="dropout_2")`
+  7. `Dense(units=3, activation="softmax", name="sentiment_output")`
+- **Training Safeguards & Callbacks:**
+  - `EarlyStopping(monitor="val_loss", patience=3, restore_best_weights=True)`
+  - `ModelCheckpoint(filepath="artifacts/models/lstm/lstm_model.keras", monitor="val_loss", save_best_only=True)`
+  - Loss function: `sparse_categorical_crossentropy`, Optimizer: `Adam(learning_rate=0.001)`.
+- **Artifacts Generated:** `lstm_model.keras` (32MB), `tokenizer.json`, `model_metadata.json`, `loss_curve.png`, `accuracy_curve.png`, `confusion_matrix.png`, `confidence_distribution.png`, `evaluation_metrics.json`, `validation_metrics.json`, and `predictions.parquet`.
 
 ### 2.4 Hugging Face BERT (`bert-base-uncased`)
 - **Architecture:** Transformer sequence classification with 12 attention heads and 110M parameters.
 - **Local vs Colab Execution:** Standalone Google Colab notebook (`notebooks/01_colab_bert_training.ipynb`) provided for free GPU fine-tuning. Local RTX 4050 (6GB VRAM) can run local fine-tuning using `fp16` mixed precision (batch size 16).
 - **Deployment Safety:** In Streamlit Cloud, fine-tuning is disabled to prevent Out-Of-Memory (OOM) crashes; pre-trained weights and pre-computed evaluation matrices are loaded on demand.
 
-### 2.5 Gemini Free-Tier Resilience & Provider Abstraction
-- **SDK:** Official `google-genai` SDK with fallback to `google-generativeai`.
+### 2.5 Gemini Free-Tier Resilience & LLM Integration (Implemented in Milestone 3)
+- **SDK:** Official Google Gen AI Python SDK (`google-genai`, version >= 3.0.0 / 0.1.1) utilizing HTTP REST (`httpx`) transport to prevent Windows DLL code-integrity conflicts with legacy gRPC C-extensions.
 - **Configurability:** Model name configurable via `GEMINI_MODEL_NAME` (e.g. `gemini-1.5-flash`, `gemini-2.0-flash`).
-- **Adaptive Resilience:**
-  - Dynamic rate-limit handling with exponential backoff and jitter.
-  - Inspection of `Retry-After` HTTP headers on HTTP 429 (`ResourceExhausted`).
-  - Max retry limits to prevent infinite loops.
-- **Controlled Generation Batches:** Reviews generated in batches of 10–20 to minimize API calls while fitting within free-tier token ceilings.
-- **State Checkpointing & Resumption:** Successful batches saved immediately to disk; interrupted runs resume from the last valid review count.
+- **Prompt Engineering & Structured JSON Output:** Strict JSON output schema (`sentiment`, `label`, `confidence`, `reason`) with system instructions forbidding markdown prose and enforcing sentiment polarity boundaries.
+- **Free-Tier Rate-Limiting & Resilience:**
+  - Exponential backoff with random jitter on HTTP 429 (`ResourceExhausted`) and 503 (`Unavailable`).
+  - Configurable query delay (`rate_limit_delay=4.0s`) ensuring API calls do not breach the 15 requests per minute (RPM) free-tier ceiling.
+  - Persistent JSON disk caching (`response_cache.json`) indexed by `hash(prompt)` to prevent redundant API queries.
+  - State checkpointing (`checkpoint_{mode}.json`) allowing resumption from the exact failed review upon transient disconnections.
+- **Unified Prediction Data Contract:** `ModelPredictionResult` (`src/models/common_interface.py`) providing a standardized output schema across Logistic Regression, BiLSTM, and Gemini (zero-shot and few-shot).
+- **Evaluation Strategy on 300-Sample Benchmark:** Stratified, reproducible 300-sample evaluation benchmark (`artifacts/data/gemini_benchmark_300.parquet`: 100 Negative, 100 Neutral, 100 Positive) extracted from the fixed 3,000 evaluation subset for fair cross-model comparisons under quota constraints.
+- **Probability vs Scalar Confidence:** Discriminative models output calibrated posterior distributions $P(Y=c|X)$ where $\sum_c P(Y=c|X) = 1.0$. Generative LLMs output self-reported certainty scalars elicited via structured prompting. The evaluation engine cleanly segregates these concepts, avoiding uncalibrated probability assumptions on LLMs.
 - **Verification Gate:** Exactly 500 unique, validated reviews must be recorded before completion is declared.
 - **Mock Provider:** `MockLLMProvider` used in automated tests; no real API quota consumed during testing.
 - **Academic Substitution Transparency:** Clearly documented as a provider substitution for GPT due to free developer tier access. Synthetic review augmentation does not modify Gemini model weights.

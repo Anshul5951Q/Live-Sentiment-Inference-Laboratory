@@ -50,3 +50,4 @@ class TestMulticlassCalibrator:
         
         np.testing.assert_array_equal(calibrator.predict(X_val[:5]), loaded.predict(X_val[:5]))
         np.testing.assert_allclose(calibrator.predict_proba(X_val[:5]), loaded.predict_proba(X_val[:5]), atol=1e-5)
+

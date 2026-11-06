@@ -91,3 +91,4 @@ class TestLogisticRegressionPipelineIntegration:
         pred = predictor.predict("A completely novel test sentence.")
         assert pred["predicted_label"] in (0, 1, 2)
         assert pred["confidence"] > 0
+

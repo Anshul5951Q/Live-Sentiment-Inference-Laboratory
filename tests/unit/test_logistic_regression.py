@@ -56,3 +56,4 @@ class TestLogisticRegressionClassifier:
         # Assert prediction parity
         np.testing.assert_array_equal(clf.predict(X[:5]), loaded.predict(X[:5]))
         np.testing.assert_allclose(clf.predict_proba(X[:5]), loaded.predict_proba(X[:5]), atol=1e-5)
+

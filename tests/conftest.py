@@ -1,4 +1,7 @@
 """Pytest fixtures and test configurations for SentimentLab AI."""
+import matplotlib
+matplotlib.use("Agg")
+
 import pytest
 import pandas as pd
 

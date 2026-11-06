@@ -73,3 +73,4 @@ class TestClassificationMetrics:
         assert "ece" in metrics
         assert "confidence_stats" in metrics
         assert "reliability_curves" in metrics
+

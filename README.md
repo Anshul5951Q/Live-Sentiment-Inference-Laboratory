@@ -4,6 +4,7 @@
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.35+-FF4B4B.svg)](https://streamlit.io)
 [![Milestone 1](https://img.shields.io/badge/Milestone%201-Verified-success.svg)]()
 [![Milestone 2](https://img.shields.io/badge/Milestone%202-Complete-success.svg)]()
+[![Milestone 3](https://img.shields.io/badge/Milestone%203-Complete-success.svg)]()
 [![Code Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-brightgreen.svg)]()
 
 > **Academic Mini-Project P4:** An end-to-end experimental laboratory comparing discriminative machine learning models (Logistic Regression, Keras BiLSTM, Hugging Face BERT) with generative foundation models (Google Gemini) for three-class sentiment analysis (Negative, Neutral, Positive).
@@ -105,24 +106,47 @@ The assignment syllabus references GPT-based synthetic review generation. **Goog
    python scripts/download_and_preprocess.py
    ```
 
-6. **Train and evaluate Logistic Regression baseline:**
+6. **Train and evaluate Logistic Regression baseline (Milestone 2):**
    ```powershell
    python scripts/train_logistic_regression.py
    ```
 
-7. **Run automated test suite (41 tests):**
+7. **Train and evaluate Keras Bidirectional LSTM (Milestone 3):**
+   ```powershell
+   python scripts/train_lstm.py
+   ```
+
+8. **Run Four-Way Benchmark Comparison (Milestone 3):**
+   ```powershell
+   python scripts/run_model_comparison.py
+   ```
+
+9. **Run automated test suite (62 tests across unit and integration):**
    ```powershell
    pytest -v
    ```
 
-8. **Launch Streamlit Web Application (Available in Milestone 8):**
+10. **Launch Streamlit Web Application (Available in Milestone 8):**
    ```powershell
    streamlit run ui/app.py
    ```
 
 ---
 
-## 6. Project Architecture
+## 6. Milestone 3 Empirical Benchmark Summary
+
+Performance on 300 Identical Yelp Evaluation Reviews (100 Negative, 100 Neutral, 100 Positive):
+
+| Model | Accuracy | Macro F1 | Multiclass Brier | Latency (ms/sample) |
+| :--- | :---: | :---: | :---: | :---: |
+| **Logistic Regression (Calibrated)** | **74.67%** | **74.27%** | **0.3606** | **0.1 ms** |
+| **Bidirectional LSTM** | **67.67%** | **67.93%** | **0.4219** | **2.4 ms** |
+| **Gemini Zero-Shot** | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *Live Run via Script* |
+| **Gemini Few-Shot** | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *Live Run via Script* |
+
+---
+
+## 7. Project Architecture
 
 ```
 SentimentLab-AI/

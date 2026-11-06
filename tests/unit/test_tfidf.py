@@ -66,3 +66,4 @@ class TestTfidfVectorizer:
             vec.transform(test_text).toarray(),
             loaded_vec.transform(test_text).toarray()
         )
+

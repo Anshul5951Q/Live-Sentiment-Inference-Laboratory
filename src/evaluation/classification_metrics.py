@@ -195,6 +195,11 @@ def evaluate_sentiment_model(
     
     if y_prob is not None:
         y_pr = np.asarray(y_prob, dtype=float)
+        # Normalize row-wise to eliminate float32/float64 rounding discrepancy in log_loss
+        row_sums = np.sum(y_pr, axis=1, keepdims=True)
+        row_sums[row_sums == 0] = 1.0
+        y_pr = y_pr / row_sums
+        
         metrics["brier_score"] = compute_multiclass_brier_score(y_t, y_pr)
         metrics["log_loss"] = float(log_loss(y_t, y_pr, labels=[0, 1, 2]))
         metrics["ece"] = compute_expected_calibration_error(y_t, y_pr, n_bins=n_bins)
@@ -202,3 +207,4 @@ def evaluate_sentiment_model(
         metrics["reliability_curves"] = compute_reliability_data(y_t, y_pr, n_bins=n_bins)
         
     return metrics
+

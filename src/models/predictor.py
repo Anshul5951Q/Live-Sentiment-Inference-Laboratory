@@ -124,3 +124,4 @@ class SentimentPredictor:
             return self._predict_batch(list(text_or_texts), use_calibrated=use_calibrated)
         else:
             raise TypeError(f"Expected str or List[str], got {type(text_or_texts).__name__}")
+

@@ -134,3 +134,4 @@ class TextTfidfVectorizer:
         self.is_fitted = state.get("is_fitted", True)
         logger.info("Loaded TextTfidfVectorizer from %s (vocab: %d)", path, len(self.vectorizer.vocabulary_))
         return self
+

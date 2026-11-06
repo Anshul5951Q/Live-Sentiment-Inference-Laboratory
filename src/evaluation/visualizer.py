@@ -1,6 +1,8 @@
 """Visualization utilities for publication-quality sentiment analysis charts."""
 from pathlib import Path
 from typing import Any, Dict, List, Union
+import matplotlib
+matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
@@ -184,3 +186,4 @@ def plot_confidence_distribution(
     plt.close(fig)
     logger.info("Saved confidence distribution plot to %s", path)
     return path
+

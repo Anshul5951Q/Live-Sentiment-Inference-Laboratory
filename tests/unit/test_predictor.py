@@ -71,3 +71,4 @@ class TestSentimentPredictor:
         result = fitted_predictor.predict("   \t\n  ")
         assert isinstance(result, dict)
         assert result["predicted_label"] in (0, 1, 2)
+
