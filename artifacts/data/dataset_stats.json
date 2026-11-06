@@ -1,0 +1,70 @@
+{
+  "train": {
+    "total_samples": 19200,
+    "label_distribution": {
+      "0": 6400,
+      "1": 6400,
+      "2": 6400
+    },
+    "sentiment_distribution": {
+      "Negative": 6400,
+      "Neutral": 6400,
+      "Positive": 6400
+    },
+    "token_length_mean": 134.92609375,
+    "token_length_median": 100.0,
+    "token_length_min": 1,
+    "token_length_max": 1016
+  },
+  "val": {
+    "total_samples": 4800,
+    "label_distribution": {
+      "0": 1600,
+      "2": 1600,
+      "1": 1600
+    },
+    "sentiment_distribution": {
+      "Negative": 1600,
+      "Positive": 1600,
+      "Neutral": 1600
+    },
+    "token_length_mean": 134.84145833333332,
+    "token_length_median": 100.0,
+    "token_length_min": 1,
+    "token_length_max": 947
+  },
+  "test": {
+    "total_samples": 50000,
+    "label_distribution": {
+      "0": 20000,
+      "2": 20000,
+      "1": 10000
+    },
+    "sentiment_distribution": {
+      "Negative": 20000,
+      "Positive": 20000,
+      "Neutral": 10000
+    },
+    "token_length_mean": 134.29098,
+    "token_length_median": 99.0,
+    "token_length_min": 1,
+    "token_length_max": 1009
+  },
+  "eval_subset": {
+    "total_samples": 3000,
+    "label_distribution": {
+      "1": 1000,
+      "0": 1000,
+      "2": 1000
+    },
+    "sentiment_distribution": {
+      "Neutral": 1000,
+      "Negative": 1000,
+      "Positive": 1000
+    },
+    "token_length_mean": 133.48833333333334,
+    "token_length_median": 99.0,
+    "token_length_min": 1,
+    "token_length_max": 1002
+  }
+}

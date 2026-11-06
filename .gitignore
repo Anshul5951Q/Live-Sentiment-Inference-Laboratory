@@ -1,0 +1,47 @@
+# Python & virtual environment
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+*.env
+.env
+.env.*
+!.env.example
+
+# IDE & OS
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+
+# Jupyter / IPynb checkpoints
+.ipynb_checkpoints/
+*/.ipynb_checkpoints/*
+
+# Testing & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Model checkpoints & heavy artifacts (do not commit large binaries to git)
+artifacts/models/*.keras
+artifacts/models/*.h5
+artifacts/models/*.pt
+artifacts/models/*.bin
+artifacts/models/*.joblib
+artifacts/models/bert_checkpoint/
+artifacts/data/yelp_cache/
+artifacts/data/*.parquet
+artifacts/data/*.arrow
+artifacts/data/*.feather
+!artifacts/data/README.md
+!artifacts/models/README.md
+!artifacts/results/README.md
+
+# Streamlit local state & secrets
+.streamlit/secrets.toml

@@ -1,0 +1,43 @@
+# Core Streamlit & Web UI
+streamlit>=1.35.0
+
+# Scientific computing & tabular data
+numpy>=1.24.0,<2.0.0
+pandas>=2.0.0
+scipy>=1.11.0
+
+# Traditional ML & Metrics
+scikit-learn>=1.3.0
+joblib>=1.3.0
+
+# Deep Learning (TensorFlow / Keras & PyTorch)
+tensorflow>=2.15.0
+torch>=2.1.0
+transformers>=4.38.0
+datasets>=2.18.0
+accelerate>=0.28.0
+
+# Generative AI (Google Gemini official SDKs)
+google-genai>=0.1.1
+google-generativeai>=0.8.0
+
+# Visualizations
+plotly>=5.18.0
+matplotlib>=3.8.0
+seaborn>=0.13.0
+
+# Multimodal Audio & Utility
+gTTS>=2.5.0
+pillow>=10.2.0
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Configuration & Validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+pyyaml>=6.0.1
+python-dotenv>=1.0.0
+
+# Testing & Quality Assurance
+pytest>=8.0.0
+pytest-mock>=3.12.0
