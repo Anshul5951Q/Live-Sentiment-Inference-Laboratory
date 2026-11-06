@@ -329,7 +329,8 @@ def ingest_colab_bert_artifacts(source_dir: Union[str, Path]) -> Dict[str, Any]:
     import shutil
     for f in src.glob("*"):
         if f.is_file():
-            if f.suffix in (".json", ".png", ".parquet") and "metrics" in f.name or "history" in f.name or "confusion" in f.name or "curve" in f.name:
+            results_keywords = ("metrics", "history", "confusion", "curve", "prediction")
+            if f.suffix in (".json", ".png", ".parquet") and any(k in f.name for k in results_keywords):
                 dest = target_results / f.name
             else:
                 dest = target_models / f.name

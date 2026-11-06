@@ -1,5 +1,6 @@
 """CLI entrypoint to train, evaluate, or ingest Hugging Face BERT classifier artifacts."""
 import argparse
+import shutil
 import sys
 import zipfile
 from pathlib import Path
@@ -42,6 +43,7 @@ def main():
             chk_dirs = list(extract_dir.glob("**/bert_checkpoint"))
             target_dir = chk_dirs[0] if chk_dirs else extract_dir
             res = ingest_colab_bert_artifacts(target_dir)
+            shutil.rmtree(extract_dir, ignore_errors=True)
         else:
             res = ingest_colab_bert_artifacts(ingest_path)
             
