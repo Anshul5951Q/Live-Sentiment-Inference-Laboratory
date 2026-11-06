@@ -65,3 +65,4 @@ predictor = BertSentimentPredictor.from_artifacts("artifacts/models/bert")
 result = predictor.predict_one("The food was incredible but service was slightly slow.")
 print(result.predicted_sentiment, result.confidence)
 ```
+

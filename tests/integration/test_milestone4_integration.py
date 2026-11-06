@@ -160,3 +160,4 @@ class TestMilestone4Integration:
         assert len(plot_files) == 4
         for pf in plot_files:
             assert pf.exists()
+

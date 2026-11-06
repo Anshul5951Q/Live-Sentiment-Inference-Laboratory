@@ -301,3 +301,4 @@ class SyntheticReviewGenerator:
             total_accepted, self.TOTAL_TARGET
         )
         return metadata
+

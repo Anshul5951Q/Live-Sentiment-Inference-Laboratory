@@ -94,3 +94,4 @@ The quality of the final 500 accepted reviews is analyzed via `src/evaluation/sy
 - **Near-Duplicate Estimation:** Word-level Jaccard similarity thresholded at 0.85 to identify near-identical phrasing.
 - **Class Balance Verification:** Ensuring exact target allocation (167 / 167 / 166).
 - **Quality Report:** Persisted to `artifacts/results/synthetic_analysis/synthetic_quality_report.json`.
+

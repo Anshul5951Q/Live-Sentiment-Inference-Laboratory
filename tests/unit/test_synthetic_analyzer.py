@@ -61,3 +61,4 @@ class TestSyntheticDataAnalyzer:
         assert (tmp_path / "synthetic_quality_report.json").exists()
         assert (tmp_path / "synthetic_class_distribution.png").exists()
         assert (tmp_path / "synthetic_length_distribution.png").exists()
+

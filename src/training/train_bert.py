@@ -338,3 +338,4 @@ def ingest_colab_bert_artifacts(source_dir: Union[str, Path]) -> Dict[str, Any]:
             
     logger.info("Ingested %d artifact files from Colab.", len(copied))
     return {"ingested_files": copied, "count": len(copied)}
+

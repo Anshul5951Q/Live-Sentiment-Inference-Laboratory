@@ -172,3 +172,4 @@ class TestSyntheticReviewGenerator:
         assert counts["Neutral"] == 5
         assert counts["Positive"] == 5
         assert len(gen2.accepted_records) == 15
+
