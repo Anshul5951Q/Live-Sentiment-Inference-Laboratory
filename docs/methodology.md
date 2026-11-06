@@ -143,7 +143,49 @@ To eliminate evaluation bias and control API usage under Google Gemini free-tier
 
 ---
 
-## 7. Academic Transparency & LLM Provider Substitution
+## 7. Milestone 4: Hugging Face BERT & Synthetic Review Generation Protocol
+
+### 7.1 BERT Architecture & Fine-Tuning Specification
+- **Transformer Encoder:** `bert-base-uncased` with 12 bidirectional self-attention heads, 768 hidden dimensions, and 110M parameters.
+- **Classification Head:** Linear transformation on top of the pooled `[CLS]` embedding with a $0.1$ dropout rate, projecting into $\mathbb{R}^3$ followed by a Softmax activation.
+- **Pretrained Tokenizer:** WordPiece tokenizer with 30,522 token vocabulary. The vocabulary is strictly frozen; out-of-vocabulary terms are subword tokenized.
+- **Training Strategy:**
+  - Optimizer: AdamW ($lr=2 \times 10^{-5}$, weight decay $0.01$).
+  - Schedule: Linear warmup over 10% of total steps followed by linear decay.
+  - Early Stopping: Monitored on validation loss / macro-F1 with patience 2.
+- **Hardware & Colab Strategy:**
+  - Due to Windows Defender Application Control policy restrictions blocking native PyTorch DLL loading (`torch_global_deps.dll`), a standalone Google Colab notebook (`notebooks/01_colab_bert_training.ipynb`) is provided for 1-click execution on a free NVIDIA T4 GPU.
+  - Exported artifacts (`model.safetensors`, `config.json`, `tokenizer.json`, evaluation metrics) are directly ingestible into `artifacts/models/bert/` and `artifacts/results/bert/`.
+
+### 7.2 Synthetic Customer Review Generation & Validation Protocol
+- **Target Quota:** Exactly 500 validated customer reviews:
+  - 167 Negative (Class 0)
+  - 167 Neutral (Class 1)
+  - 166 Positive (Class 2)
+- **Aspect Cycling:** 9 distinct business facets (food quality, waitstaff service, pricing/value, ambiance, wait time, cleanliness, takeout/delivery, mixed food-service contrast, mixed staff-food contrast).
+- **Validation Gates:**
+  1. Character bounds: $25 \le \text{length} \le 2500$.
+  2. Template placeholder detection (rejects unpopulated brackets/tags).
+  3. Class label agreement (`sentiment` strictly matches `label`).
+  4. Intra-batch uniqueness (rejects duplicate synthetic generations).
+  5. Real dataset collision guard (strictly checks against all 24,000 real Yelp reviews).
+  6. Heuristic polarity verification (rejects extreme lexical contradictions).
+- **Resilience:** Bounded exponential backoff with jitter on HTTP 429/503, 4.0-second query throttling to comply with 15 RPM limits, and incremental state checkpointing (`checkpoint_synthetic_generation.json`).
+
+### 7.3 Five-Way Comparative Benchmark
+The benchmark engine in `src/evaluation/model_comparison.py` evaluates all 5 paradigms on the identical, balanced 300-review evaluation benchmark:
+
+| Model | Paradigm | Parameters | Sample Size | Accuracy | Macro F1 | Status |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Logistic Regression (Calibrated)** | Linear ML + TF-IDF | 30,003 | n = 300 | **74.67%** | **74.27%** | **Complete** |
+| **Bidirectional LSTM** | Deep Recurrent NN | ~2.66M | n = 300 | **67.67%** | **67.93%** | **Complete** |
+| **Hugging Face BERT** | Pretrained Transformer | ~110M | n = 300 | *Colab Run* | *Colab Run* | **Wired (Notebook Available)** |
+| **Gemini Zero-Shot** | Generative Foundation Model | ~1.5B–8B | n = 300 | *Pending Key* | *Pending Key* | **Wired & Mock-Tested** |
+| **Gemini Few-Shot** | In-Context Learning (6 shots) | ~1.5B–8B | n = 300 | *Pending Key* | *Pending Key* | **Wired & Mock-Tested** |
+
+---
+
+## 8. Academic Transparency & LLM Provider Substitution
 
 - The academic assignment syllabus refers to GPT-based review generation.
 - **Provider Substitution:** Due to open free-tier API quotas and developer accessibility, **Google Gemini** (`gemini-1.5-flash` / `gemini-2.0-flash`) is implemented via the official `google-genai` SDK.

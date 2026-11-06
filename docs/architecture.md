@@ -90,10 +90,15 @@ The system follows Clean Architecture and Domain-Driven Design (DDD):
   - Loss function: `sparse_categorical_crossentropy`, Optimizer: `Adam(learning_rate=0.001)`.
 - **Artifacts Generated:** `lstm_model.keras` (32MB), `tokenizer.json`, `model_metadata.json`, `loss_curve.png`, `accuracy_curve.png`, `confusion_matrix.png`, `confidence_distribution.png`, `evaluation_metrics.json`, `validation_metrics.json`, and `predictions.parquet`.
 
-### 2.4 Hugging Face BERT (`bert-base-uncased`)
-- **Architecture:** Transformer sequence classification with 12 attention heads and 110M parameters.
-- **Local vs Colab Execution:** Standalone Google Colab notebook (`notebooks/01_colab_bert_training.ipynb`) provided for free GPU fine-tuning. Local RTX 4050 (6GB VRAM) can run local fine-tuning using `fp16` mixed precision (batch size 16).
-- **Deployment Safety:** In Streamlit Cloud, fine-tuning is disabled to prevent Out-Of-Memory (OOM) crashes; pre-trained weights and pre-computed evaluation matrices are loaded on demand.
+### 2.4 Hugging Face BERT (`bert-base-uncased`) (Implemented in Milestone 4)
+- **Architecture:** Transformer sequence classification with 12 attention heads, 768 hidden dimension, and 110M parameters.
+- **Classification Head:** Linear layer on top of pooled `[CLS]` token representation with dropout ($0.1$) mapping to 3 sentiment classes (`0=Negative`, `1=Neutral`, `2=Positive`).
+- **Tokenizer:** Pretrained WordPiece tokenizer (`AutoTokenizer.from_pretrained('bert-base-uncased')`). Pretrained vocabulary is frozen and never altered.
+- **Local vs Colab Execution Protocol:**
+  - Local Hardware: NVIDIA GeForce RTX 4050 Laptop GPU physically present.
+  - OS Security Enforcement: Host Windows Defender Application Control (WDAC) / AppLocker policy restricts third-party DLL execution in user space (`torch_global_deps.dll`).
+  - Colab Solution: Complete standalone Google Colab GPU training notebook provided at [`notebooks/01_colab_bert_training.ipynb`](file:///d:/Projects/GenAI%20P4%20Model/notebooks/01_colab_bert_training.ipynb). Allows 1-click training on a free NVIDIA T4 GPU and exports checkpoint artifacts into `artifacts/models/bert/`.
+  - Local Predictor: [`BertSentimentPredictor`](file:///d:/Projects/GenAI%20P4%20Model/src/models/bert_classifier.py) loads exported checkpoints and executes inference returning standardized `ModelPredictionResult`.
 
 ### 2.5 Gemini Free-Tier Resilience & LLM Integration (Implemented in Milestone 3)
 - **SDK:** Official Google Gen AI Python SDK (`google-genai`, version >= 3.0.0 / 0.1.1) utilizing HTTP REST (`httpx`) transport to prevent Windows DLL code-integrity conflicts with legacy gRPC C-extensions.
@@ -107,11 +112,22 @@ The system follows Clean Architecture and Domain-Driven Design (DDD):
 - **Unified Prediction Data Contract:** `ModelPredictionResult` (`src/models/common_interface.py`) providing a standardized output schema across Logistic Regression, BiLSTM, and Gemini (zero-shot and few-shot).
 - **Evaluation Strategy on 300-Sample Benchmark:** Stratified, reproducible 300-sample evaluation benchmark (`artifacts/data/gemini_benchmark_300.parquet`: 100 Negative, 100 Neutral, 100 Positive) extracted from the fixed 3,000 evaluation subset for fair cross-model comparisons under quota constraints.
 - **Probability vs Scalar Confidence:** Discriminative models output calibrated posterior distributions $P(Y=c|X)$ where $\sum_c P(Y=c|X) = 1.0$. Generative LLMs output self-reported certainty scalars elicited via structured prompting. The evaluation engine cleanly segregates these concepts, avoiding uncalibrated probability assumptions on LLMs.
-- **Verification Gate:** Exactly 500 unique, validated reviews must be recorded before completion is declared.
-- **Mock Provider:** `MockLLMProvider` used in automated tests; no real API quota consumed during testing.
+- **Mock Provider:** `MockLLMProvider` used in automated tests; zero live API quota consumed during testing.
 - **Academic Substitution Transparency:** Clearly documented as a provider substitution for GPT due to free developer tier access. Synthetic review augmentation does not modify Gemini model weights.
 
-### 2.6 Counterfactual Bias Testing
+### 2.6 Synthetic Review Generation & Validation Pipeline (Implemented in Milestone 4)
+- **Orchestrator:** `SyntheticReviewGenerator` (`src/llm/synthetic_review_generator.py`) managing batch generation (10–15 reviews/call) targeting exactly 500 reviews (167 Negative, 167 Neutral, 166 Positive).
+- **Topic & Aspect Cycling:** Prompts rotate through 9 customer review dimensions (food quality, staff attentiveness, pricing, noise/ambiance, wait times, cleanliness, takeout packaging, mixed experiences).
+- **Validation Engine:** `SyntheticReviewValidator` (`src/llm/synthetic_review_validator.py`) enforcing:
+  1. Non-empty string and character bounds ($25 \le \text{length} \le 2500$).
+  2. Rejection of unpopulated placeholders (`[Restaurant]`, `<Dish>`).
+  3. Strict label matching (`0 <-> Negative`, `1 <-> Neutral`, `2 <-> Positive`).
+  4. Exact duplicate rejection within the synthetic batch.
+  5. Exact collision rejection against 24,000 real Yelp reviews.
+  6. Heuristic semantic consistency check (flags severe valence contradictions).
+- **Quality Analysis:** `analyze_synthetic_dataset` (`src/evaluation/synthetic_data_analyzer.py`) reporting character/word length distributions, real vs synthetic length KDEs, and Jaccard near-duplicate rates.
+
+### 2.7 Counterfactual Bias Testing
 - **Templates:** 50+ identical templates across 4 major Indian metropolitan regions (Pune, Mumbai, Delhi, Chennai), demographic indicators, and neutral control entities.
 - **Metrics:**
   - Prediction Consistency ($\%$ of template variations yielding identical sentiment).

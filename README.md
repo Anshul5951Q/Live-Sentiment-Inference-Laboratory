@@ -5,6 +5,7 @@
 [![Milestone 1](https://img.shields.io/badge/Milestone%201-Verified-success.svg)]()
 [![Milestone 2](https://img.shields.io/badge/Milestone%202-Complete-success.svg)]()
 [![Milestone 3](https://img.shields.io/badge/Milestone%203-Complete-success.svg)]()
+[![Milestone 4](https://img.shields.io/badge/Milestone%204-Delivered-success.svg)]()
 [![Code Architecture](https://img.shields.io/badge/Architecture-Clean%20Architecture-brightgreen.svg)]()
 
 > **Academic Mini-Project P4:** An end-to-end experimental laboratory comparing discriminative machine learning models (Logistic Regression, Keras BiLSTM, Hugging Face BERT) with generative foundation models (Google Gemini) for three-class sentiment analysis (Negative, Neutral, Positive).
@@ -116,33 +117,53 @@ The assignment syllabus references GPT-based synthetic review generation. **Goog
    python scripts/train_lstm.py
    ```
 
-8. **Run Four-Way Benchmark Comparison (Milestone 3):**
+8. **Train Hugging Face BERT locally or via Colab GPU (Milestone 4):**
+   ```powershell
+   # Local runner (checks device availability / OS policy):
+   python scripts/train_bert.py
+
+   # Or open in Google Colab for free NVIDIA T4 GPU fine-tuning:
+   # notebooks/01_colab_bert_training.ipynb
+   ```
+
+9. **Generate 500 validated synthetic customer reviews (Milestone 4):**
+   ```powershell
+   python scripts/generate_synthetic_reviews.py
+   ```
+
+10. **Analyze synthetic dataset quality & length distributions (Milestone 4):**
+   ```powershell
+   python scripts/analyze_synthetic_data.py
+   ```
+
+11. **Run Five-Way Benchmark Comparison on 300 Identical Reviews (Milestone 4):**
    ```powershell
    python scripts/run_model_comparison.py
    ```
 
-9. **Run automated test suite (62 tests across unit and integration):**
+12. **Run automated test suite (79 tests across unit and integration):**
    ```powershell
    pytest -v
    ```
 
-10. **Launch Streamlit Web Application (Available in Milestone 8):**
+13. **Launch Streamlit Web Application (Available in Milestone 8):**
    ```powershell
    streamlit run ui/app.py
    ```
 
 ---
 
-## 6. Milestone 3 Empirical Benchmark Summary
+## 6. Multi-Model Benchmark Summary (300 Identical Reviews)
 
-Performance on 300 Identical Yelp Evaluation Reviews (100 Negative, 100 Neutral, 100 Positive):
+Performance evaluated on the fixed, balanced 300-review subset (100 Negative, 100 Neutral, 100 Positive):
 
-| Model | Accuracy | Macro F1 | Multiclass Brier | Latency (ms/sample) |
-| :--- | :---: | :---: | :---: | :---: |
-| **Logistic Regression (Calibrated)** | **74.67%** | **74.27%** | **0.3606** | **0.1 ms** |
-| **Bidirectional LSTM** | **67.67%** | **67.93%** | **0.4219** | **2.4 ms** |
-| **Gemini Zero-Shot** | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *Live Run via Script* |
-| **Gemini Few-Shot** | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *Live Run via Script* |
+| Model | Architecture / Paradigm | Accuracy | Macro F1 | Multiclass Brier | Avg Latency | Status |
+| :--- | :--- | :---: | :---: | :---: | :---: | :--- |
+| **Logistic Regression** | Linear ML + TF-IDF (10k ngrams) | **74.67%** | **74.27%** | **0.3606** | **0.1 ms** | **Complete** |
+| **Bidirectional LSTM** | Deep Recurrent (Embedding + BiLSTM) | **67.67%** | **67.93%** | **0.4219** | **2.4 ms** | **Complete** |
+| **Hugging Face BERT** | Contextual Transformer (`bert-base-uncased`) | *Colab Run* | *Colab Run* | *Colab Run* | *Colab Run* | **Notebook Ready** |
+| **Gemini Zero-Shot** | In-Context Learning (0 shots) | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *~1,200 ms* | **Mock-Tested** |
+| **Gemini Few-Shot** | In-Context Learning (6 shots) | *Pending Key* | *Pending Key* | *N/A (Scalar)* | *~1,400 ms* | **Mock-Tested** |
 
 ---
 

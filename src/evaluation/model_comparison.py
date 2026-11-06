@@ -1,4 +1,4 @@
-"""Comparative evaluation pipeline benchmarking Logistic Regression, BiLSTM, and Gemini."""
+"""Comparative evaluation pipeline benchmarking Logistic Regression, BiLSTM, BERT, and Gemini."""
 from pathlib import Path
 import time
 from typing import Any, Dict, List, Optional
@@ -18,24 +18,26 @@ logger = setup_logger(__name__)
 
 def generate_comparison_plots(
     comparison_results: Dict[str, Any],
-    output_dir: Path
+    output_dir: Path,
+    benchmark_size: int = 300,
 ) -> List[Path]:
-    """Generate publication-quality charts for the four-way model benchmark."""
+    """Generate publication-quality charts for the model benchmark."""
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_plots = []
     
     models = list(comparison_results.keys())
     model_labels = [m.replace("_", " ") for m in models]
-    colors = ["#3498db", "#9b59b6", "#e67e22", "#2ecc71"]
+    palette = ["#3498db", "#9b59b6", "#1abc9c", "#e67e22", "#2ecc71", "#e74c3c"]
+    colors = [palette[i % len(palette)] for i in range(len(models))]
     
     # 1. Accuracy & Macro-F1 Comparison Chart
-    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 5), dpi=300)
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(13, 5), dpi=300)
     
     accuracies = [comparison_results[m]["accuracy"] for m in models]
     macro_f1s = [comparison_results[m]["macro_f1"] for m in models]
     
     bars1 = ax1.bar(model_labels, accuracies, color=colors, width=0.55)
-    ax1.set_title("Overall Accuracy on 300-Sample Benchmark", fontsize=11, fontweight="bold")
+    ax1.set_title(f"Overall Accuracy ({benchmark_size}-Sample Benchmark)", fontsize=11, fontweight="bold")
     ax1.set_ylabel("Accuracy", fontsize=10)
     ax1.set_ylim([0.0, 1.05])
     ax1.grid(axis="y", linestyle="--", alpha=0.6)
@@ -45,7 +47,7 @@ def generate_comparison_plots(
                      xytext=(0, 3), textcoords="offset points", ha="center", va="bottom", fontsize=9, fontweight="bold")
                      
     bars2 = ax2.bar(model_labels, macro_f1s, color=colors, width=0.55)
-    ax2.set_title("Macro F1-Score on 300-Sample Benchmark", fontsize=11, fontweight="bold")
+    ax2.set_title(f"Macro F1-Score ({benchmark_size}-Sample Benchmark)", fontsize=11, fontweight="bold")
     ax2.set_ylabel("Macro F1", fontsize=10)
     ax2.set_ylim([0.0, 1.05])
     ax2.grid(axis="y", linestyle="--", alpha=0.6)
@@ -62,21 +64,22 @@ def generate_comparison_plots(
     generated_plots.append(acc_f1_path)
     
     # 2. Per-Class F1 Comparison (Grouped Bar Chart)
-    fig, ax = plt.subplots(figsize=(10, 5), dpi=300)
+    fig, ax = plt.subplots(figsize=(11, 5), dpi=300)
     class_names = ["Negative", "Neutral", "Positive"]
     x = np.arange(len(class_names))
-    width = 0.20
+    width = max(0.12, 0.75 / max(1, len(models)))
     
     for i, m in enumerate(models):
         per_class = comparison_results[m]["per_class"]
         f1_vals = [per_class[c]["f1_score"] for c in class_names]
-        rects = ax.bar(x + (i - 1.5) * width, f1_vals, width, label=model_labels[i], color=colors[i % len(colors)])
+        offset = (i - (len(models) - 1) / 2) * width
+        rects = ax.bar(x + offset, f1_vals, width, label=model_labels[i], color=colors[i])
         for r in rects:
             h = r.get_height()
             ax.annotate(f"{h:.2f}", xy=(r.get_x() + r.get_width() / 2, h),
-                        xytext=(0, 2), textcoords="offset points", ha="center", va="bottom", fontsize=8)
-                        
-    ax.set_title("Per-Class F1-Score Comparison Across Sentiment Classes", fontsize=12, fontweight="bold", pad=12)
+                         xytext=(0, 2), textcoords="offset points", ha="center", va="bottom", fontsize=7.5)
+                         
+    ax.set_title(f"Per-Class F1-Score Comparison Across Sentiment Classes (n={benchmark_size})", fontsize=12, fontweight="bold", pad=12)
     ax.set_xticks(x)
     ax.set_xticklabels(class_names, fontsize=10, fontweight="bold")
     ax.set_ylabel("F1 Score", fontsize=10)
@@ -89,8 +92,16 @@ def generate_comparison_plots(
     plt.close(fig)
     generated_plots.append(per_class_path)
     
-    # 3. 2x2 Grid of Confusion Matrices
-    fig, axes = plt.subplots(2, 2, figsize=(10, 9), dpi=300)
+    # 3. Grid of Confusion Matrices
+    n_models = len(models)
+    if n_models <= 4:
+        nrows, ncols = 2, 2
+        fig_size = (10, 9)
+    else:
+        nrows, ncols = 2, 3
+        fig_size = (14, 9)
+        
+    fig, axes = plt.subplots(nrows, ncols, figsize=fig_size, dpi=300)
     axes_flat = axes.flatten()
     
     for i, m in enumerate(models):
@@ -115,7 +126,7 @@ def generate_comparison_plots(
     for j in range(len(models), len(axes_flat)):
         axes_flat[j].axis("off")
         
-    plt.suptitle("Confusion Matrices on 300-Sample Benchmark (100 per Class)", fontsize=13, fontweight="bold", y=0.99)
+    plt.suptitle(f"Confusion Matrices on {benchmark_size}-Sample Benchmark (Balanced)", fontsize=13, fontweight="bold", y=0.99)
     plt.tight_layout()
     cm_path = output_dir / "confusion_matrices_all.png"
     plt.savefig(cm_path, dpi=300, bbox_inches="tight")
@@ -123,7 +134,7 @@ def generate_comparison_plots(
     generated_plots.append(cm_path)
     
     # 4. Latency Comparison Chart
-    fig, ax = plt.subplots(figsize=(8, 4.5), dpi=300)
+    fig, ax = plt.subplots(figsize=(9, 4.5), dpi=300)
     latencies = [comparison_results[m].get("latency_per_sample_ms", 0.0) for m in models]
     bars = ax.bar(model_labels, latencies, color=colors, width=0.5)
     ax.set_title("Average Inference Latency per Sample (Milliseconds)", fontsize=11, fontweight="bold", pad=10)
@@ -141,7 +152,7 @@ def generate_comparison_plots(
     plt.close(fig)
     generated_plots.append(lat_path)
     
-    logger.info("Saved 4 comparative benchmark charts to %s", output_dir)
+    logger.info("Saved %d comparative benchmark charts to %s", len(generated_plots), output_dir)
     return generated_plots
 
 
@@ -151,9 +162,10 @@ def run_four_way_comparison(
     lstm_tokenizer: Any,
     gemini_zero_shot_df: Optional[pd.DataFrame] = None,
     gemini_few_shot_df: Optional[pd.DataFrame] = None,
+    bert_predictor: Optional[Any] = None,
     benchmark_df: Optional[pd.DataFrame] = None
 ) -> Dict[str, Any]:
-    """Execute four-way comparison pipeline across LR, BiLSTM, and Gemini."""
+    """Execute model benchmark comparison across all available models."""
     results_dir = settings.results_dir / "model_comparison"
     results_dir.mkdir(parents=True, exist_ok=True)
     
@@ -164,11 +176,11 @@ def run_four_way_comparison(
     y_true = benchmark_df["label"].values.tolist()
     n_samples = len(texts)
     
-    logger.info("Running direct four-way benchmark on %d identical samples...", n_samples)
+    logger.info("Running direct comparative benchmark on %d identical samples...", n_samples)
     
     comparison_summary: Dict[str, Any] = {}
     
-    # 1. Logistic Regression Evaluation on 300 benchmark
+    # 1. Logistic Regression Evaluation on benchmark
     lr_start = time.time()
     lr_preds = lr_predictor.predict(texts, use_calibrated=True)
     lr_duration = time.time() - lr_start
@@ -182,9 +194,10 @@ def run_four_way_comparison(
     ])
     lr_metrics = evaluate_sentiment_model(y_true, lr_y_pred, y_prob=lr_probs)
     lr_metrics["latency_per_sample_ms"] = float((lr_duration / n_samples) * 1000.0)
+    lr_metrics["sample_size"] = n_samples
     comparison_summary["Logistic_Regression"] = lr_metrics
     
-    # 2. BiLSTM Evaluation on 300 benchmark
+    # 2. BiLSTM Evaluation on benchmark
     lstm_start = time.time()
     X_lstm = lstm_tokenizer.transform(texts)
     lstm_probs = lstm_classifier.predict_proba(X_lstm)
@@ -193,27 +206,50 @@ def run_four_way_comparison(
     
     lstm_metrics = evaluate_sentiment_model(y_true, lstm_y_pred, y_prob=lstm_probs)
     lstm_metrics["latency_per_sample_ms"] = float((lstm_duration / n_samples) * 1000.0)
+    lstm_metrics["sample_size"] = n_samples
     comparison_summary["Bidirectional_LSTM"] = lstm_metrics
     
-    # 3. Gemini Zero-Shot
+    # 3. BERT Evaluation (if available)
+    if bert_predictor is not None:
+        try:
+            bert_start = time.time()
+            bert_results = bert_predictor.predict_batch(texts)
+            bert_duration = time.time() - bert_start
+            bert_y_pred = [r.predicted_label for r in bert_results]
+            bert_probs = np.array([
+                [r.class_probabilities["Negative"],
+                 r.class_probabilities["Neutral"],
+                 r.class_probabilities["Positive"]]
+                for r in bert_results
+            ])
+            bert_metrics = evaluate_sentiment_model(y_true, bert_y_pred, y_prob=bert_probs)
+            bert_metrics["latency_per_sample_ms"] = float((bert_duration / n_samples) * 1000.0)
+            bert_metrics["sample_size"] = n_samples
+            comparison_summary["HuggingFace_BERT"] = bert_metrics
+        except Exception as e:
+            logger.warning("BERT benchmark evaluation failed: %s", str(e))
+            
+    # 4. Gemini Zero-Shot (if available)
     if gemini_zero_shot_df is not None and len(gemini_zero_shot_df) > 0:
         zs_pred = gemini_zero_shot_df["predicted_label"].values.tolist()
         zs_metrics = evaluate_sentiment_model(y_true, zs_pred, y_prob=None)
         zs_metrics["latency_per_sample_ms"] = float(gemini_zero_shot_df["inference_duration_ms"].mean())
+        zs_metrics["sample_size"] = len(gemini_zero_shot_df)
         comparison_summary["Gemini_Zero_Shot"] = zs_metrics
         
-    # 4. Gemini Few-Shot
+    # 5. Gemini Few-Shot (if available)
     if gemini_few_shot_df is not None and len(gemini_few_shot_df) > 0:
         fs_pred = gemini_few_shot_df["predicted_label"].values.tolist()
         fs_metrics = evaluate_sentiment_model(y_true, fs_pred, y_prob=None)
         fs_metrics["latency_per_sample_ms"] = float(gemini_few_shot_df["inference_duration_ms"].mean())
+        fs_metrics["sample_size"] = len(gemini_few_shot_df)
         comparison_summary["Gemini_Few_Shot"] = fs_metrics
         
     # Save comparison metrics JSON
     save_json(comparison_summary, results_dir / "comparison_metrics.json")
     
     # Generate publication charts
-    generate_comparison_plots(comparison_summary, results_dir)
+    generate_comparison_plots(comparison_summary, results_dir, benchmark_size=n_samples)
     
-    logger.info("Four-way comparative benchmark completed successfully.")
+    logger.info("Comparative benchmark completed successfully across %d models.", len(comparison_summary))
     return comparison_summary
