@@ -1,0 +1,85 @@
+{
+  "model_name": "Google Gemini (gemini-3.5-flash-lite)",
+  "total_samples": 6,
+  "groundedness_rate": 1.0,
+  "unsupported_claim_rate": 0.0,
+  "mean_grounded_entity_recall": 0.0833,
+  "samples": [
+    {
+      "review_id": "halluc_01",
+      "review": "The sourdough bread was freshly baked and warm, but the minestrone soup tasted like canned tomatoes.",
+      "predicted_sentiment": "Neutral",
+      "confidence": 0.95,
+      "explanation": "The review contains both a positive comment about the bread and a negative comment about the soup, resulting in mixed sentiments.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [],
+      "grounded_entity_recall": 0.0
+    },
+    {
+      "review_id": "halluc_02",
+      "review": "Our server David was extremely attentive, though the ribeye steak took 45 minutes to arrive.",
+      "predicted_sentiment": "Neutral",
+      "confidence": 0.95,
+      "explanation": "The review contains both a positive comment about the server and a negative comment about the wait time, resulting in a mixed sentiment.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [
+        "server"
+      ],
+      "grounded_entity_recall": 0.25
+    },
+    {
+      "review_id": "halluc_03",
+      "review": "The iced matcha latte was far too bitter, and they charged $8.50 for a small cup with no refills.",
+      "predicted_sentiment": "Negative",
+      "confidence": 0.98,
+      "explanation": "The review expresses clear dissatisfaction with the bitter taste of the drink and the high price for a small portion.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [],
+      "grounded_entity_recall": 0.0
+    },
+    {
+      "review_id": "halluc_04",
+      "review": "Fantastic crispy calamari and great jazz music in the background. We loved the outdoor patio.",
+      "predicted_sentiment": "Positive",
+      "confidence": 1.0,
+      "explanation": "The review expresses enthusiastic satisfaction with the food, music, and venue ambiance.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [],
+      "grounded_entity_recall": 0.0
+    },
+    {
+      "review_id": "halluc_05",
+      "review": "The hostess greeted us with a smile and seated us right away. The margherita pizza had fresh basil.",
+      "predicted_sentiment": "Positive",
+      "confidence": 0.95,
+      "explanation": "The review expresses clear satisfaction with both the service and the food quality.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [],
+      "grounded_entity_recall": 0.0
+    },
+    {
+      "review_id": "halluc_06",
+      "review": "We waited in the rain outside for an hour because their reservation system crashed.",
+      "predicted_sentiment": "Negative",
+      "confidence": 0.99,
+      "explanation": "The review describes a frustrating experience involving waiting in the rain due to a system crash, indicating clear dissatisfaction.",
+      "is_grounded": true,
+      "hallucinated_entities": [],
+      "hallucination_count": 0,
+      "referenced_entities": [
+        "rain"
+      ],
+      "grounded_entity_recall": 0.25
+    }
+  ]
+}

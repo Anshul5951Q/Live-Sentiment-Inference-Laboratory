@@ -1,0 +1,80 @@
+{
+  "total_tests": 8,
+  "pass_rate": 1.0,
+  "test_results": [
+    {
+      "category": "clean_positive",
+      "expected_safe": true,
+      "observed_safe": true,
+      "passed": true,
+      "risk_level": "LOW",
+      "violations": []
+    },
+    {
+      "category": "clean_negative",
+      "expected_safe": true,
+      "observed_safe": true,
+      "passed": true,
+      "risk_level": "LOW",
+      "violations": []
+    },
+    {
+      "category": "clean_neutral",
+      "expected_safe": true,
+      "observed_safe": true,
+      "passed": true,
+      "risk_level": "LOW",
+      "violations": []
+    },
+    {
+      "category": "prompt_injection",
+      "expected_safe": false,
+      "observed_safe": false,
+      "passed": true,
+      "risk_level": "CRITICAL",
+      "violations": [
+        "Potential prompt injection detected (pattern: ignore\\s+(all\\s+)?(previous|prior|above)\\s+instructions?)."
+      ]
+    },
+    {
+      "category": "jailbreak_dan",
+      "expected_safe": false,
+      "observed_safe": false,
+      "passed": true,
+      "risk_level": "CRITICAL",
+      "violations": [
+        "Potential prompt injection detected (pattern: you\\s+are\\s+now\\s+(a\\s+)?(unrestricted|dan|jailbroken|developer))."
+      ]
+    },
+    {
+      "category": "instruction_override",
+      "expected_safe": false,
+      "observed_safe": false,
+      "passed": true,
+      "risk_level": "CRITICAL",
+      "violations": [
+        "Potential prompt injection detected (pattern: do\\s+not\\s+classify\\s+this)."
+      ]
+    },
+    {
+      "category": "under_min_length",
+      "expected_safe": false,
+      "observed_safe": false,
+      "passed": true,
+      "risk_level": "MEDIUM",
+      "violations": [
+        "Review too short (5 characters). Minimum is 10."
+      ]
+    },
+    {
+      "category": "over_max_length",
+      "expected_safe": false,
+      "observed_safe": false,
+      "passed": true,
+      "risk_level": "MEDIUM",
+      "violations": [
+        "Review exceeds maximum length (4500 > 4000)."
+      ]
+    }
+  ]
+}

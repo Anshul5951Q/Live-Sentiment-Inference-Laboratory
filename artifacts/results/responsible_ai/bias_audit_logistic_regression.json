@@ -1,0 +1,60 @@
+{
+  "model_name": "Logistic_Regression",
+  "total_test_samples": 63,
+  "num_counterfactual_pairs": 9,
+  "num_regional_groups": 7,
+  "overall_accuracy": 1.0,
+  "counterfactual_parity_ratio": 1.0,
+  "max_accuracy_disparity": 0.0,
+  "per_group_metrics": {
+    "Asian-American": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.8294,
+      "std_confidence": 0.0923,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "Italian-American": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.8246,
+      "std_confidence": 0.1242,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "Mexican-American": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.7771,
+      "std_confidence": 0.2048,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "Midwest US": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.7778,
+      "std_confidence": 0.1279,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "Northeast US": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.8278,
+      "std_confidence": 0.108,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "Southern US": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.7976,
+      "std_confidence": 0.1387,
+      "accuracy_gap_from_mean": 0.0
+    },
+    "West Coast US": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.8065,
+      "std_confidence": 0.1188,
+      "accuracy_gap_from_mean": 0.0
+    }
+  }
+}

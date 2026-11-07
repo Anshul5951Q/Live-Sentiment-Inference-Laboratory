@@ -1,0 +1,15 @@
+{
+  "total_target": 500,
+  "total_accepted": 500,
+  "is_complete": true,
+  "counts": {
+    "Negative": 167,
+    "Neutral": 167,
+    "Positive": 166
+  },
+  "total_rejected": 2,
+  "provider": "Google Gemini (Academic Substitution for GPT)",
+  "model_name": "gemini-3.5-flash-lite",
+  "generated_at": "2026-11-07T12:24:33.949127+00:00",
+  "elapsed_seconds": 56.98
+}

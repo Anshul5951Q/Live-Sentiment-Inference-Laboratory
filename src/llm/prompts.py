@@ -101,3 +101,18 @@ def format_few_shot_prompt(review: str) -> str:
     
     return "\n".join(prompt_parts)
 
+
+# Direct functional aliases for backward compatibility and uniform API access
+build_zero_shot_prompt = format_zero_shot_prompt
+build_few_shot_prompt = format_few_shot_prompt
+
+__all__ = [
+    "SYSTEM_INSTRUCTION",
+    "FEW_SHOT_EXAMPLES",
+    "format_zero_shot_prompt",
+    "format_few_shot_prompt",
+    "build_zero_shot_prompt",
+    "build_few_shot_prompt",
+]
+
+

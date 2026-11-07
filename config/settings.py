@@ -44,7 +44,7 @@ class Settings(BaseSettings):
     
     # LLM Settings
     gemini_api_key: Optional[str] = Field(default=None, alias="GEMINI_API_KEY")
-    gemini_model_name: str = Field(default="gemini-1.5-flash", alias="GEMINI_MODEL_NAME")
+    gemini_model_name: str = Field(default="gemini-3.5-flash-lite", alias="GEMINI_MODEL_NAME")
     gemini_max_retries: int = Field(default=5, description="Max retry attempts with exponential backoff")
     gemini_backoff_base_seconds: float = Field(default=2.0)
     gemini_backoff_max_seconds: float = Field(default=60.0)

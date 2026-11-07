@@ -1,4 +1,5 @@
 """Google Gemini LLM provider for zero-shot and few-shot sentiment classification."""
+import hashlib
 import json
 import os
 import random
@@ -58,7 +59,7 @@ class GeminiProvider(BaseLLMProvider):
         try:
             # Try new official google-genai SDK first
             from google import genai
-            self._client = genai.Client(api_key=self.api_key)
+            self._client = genai.Client(api_key=self.api_key, http_options={"api_version": "v1beta"})
             self._sdk_type = "google-genai"
             logger.info("Initialized Google GenAI client with model '%s'.", self.model_name)
         except (ImportError, Exception):
@@ -197,7 +198,8 @@ class GeminiProvider(BaseLLMProvider):
         sanitized_text = str(text).strip() if text else ""
         
         # Check cache
-        cache_key = f"{self.model_name}:{mode}:{hash(sanitized_text)}"
+        text_hash = hashlib.sha256(sanitized_text.encode("utf-8")).hexdigest()[:16]
+        cache_key = f"{self.model_name}:{mode}:{text_hash}"
         if cache_key in self._cache:
             cached_val = self._cache[cache_key]
             return ModelPredictionResult(

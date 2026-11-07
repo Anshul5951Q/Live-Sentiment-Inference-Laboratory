@@ -1,0 +1,60 @@
+{
+  "model_name": "Bidirectional_LSTM",
+  "total_test_samples": 63,
+  "num_counterfactual_pairs": 9,
+  "num_regional_groups": 7,
+  "overall_accuracy": 0.873,
+  "counterfactual_parity_ratio": 0.6667,
+  "max_accuracy_disparity": 0.2222,
+  "per_group_metrics": {
+    "Asian-American": {
+      "sample_count": 9,
+      "accuracy": 0.8889,
+      "mean_confidence": 0.7674,
+      "std_confidence": 0.2371,
+      "accuracy_gap_from_mean": 0.0159
+    },
+    "Italian-American": {
+      "sample_count": 9,
+      "accuracy": 0.8889,
+      "mean_confidence": 0.7742,
+      "std_confidence": 0.228,
+      "accuracy_gap_from_mean": 0.0159
+    },
+    "Mexican-American": {
+      "sample_count": 9,
+      "accuracy": 0.7778,
+      "mean_confidence": 0.7676,
+      "std_confidence": 0.2491,
+      "accuracy_gap_from_mean": -0.0952
+    },
+    "Midwest US": {
+      "sample_count": 9,
+      "accuracy": 0.7778,
+      "mean_confidence": 0.7655,
+      "std_confidence": 0.2398,
+      "accuracy_gap_from_mean": -0.0952
+    },
+    "Northeast US": {
+      "sample_count": 9,
+      "accuracy": 0.8889,
+      "mean_confidence": 0.7804,
+      "std_confidence": 0.2236,
+      "accuracy_gap_from_mean": 0.0159
+    },
+    "Southern US": {
+      "sample_count": 9,
+      "accuracy": 1.0,
+      "mean_confidence": 0.7705,
+      "std_confidence": 0.2325,
+      "accuracy_gap_from_mean": 0.127
+    },
+    "West Coast US": {
+      "sample_count": 9,
+      "accuracy": 0.8889,
+      "mean_confidence": 0.7699,
+      "std_confidence": 0.2319,
+      "accuracy_gap_from_mean": 0.0159
+    }
+  }
+}

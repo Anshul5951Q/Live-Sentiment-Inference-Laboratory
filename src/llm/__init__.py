@@ -6,6 +6,8 @@ from src.llm.prompts import (
     FEW_SHOT_EXAMPLES,
     format_zero_shot_prompt,
     format_few_shot_prompt,
+    build_zero_shot_prompt,
+    build_few_shot_prompt,
 )
 from src.llm.sentiment_classifier import (
     extract_gemini_benchmark_subset,
@@ -19,6 +21,8 @@ __all__ = [
     "FEW_SHOT_EXAMPLES",
     "format_zero_shot_prompt",
     "format_few_shot_prompt",
+    "build_zero_shot_prompt",
+    "build_few_shot_prompt",
     "extract_gemini_benchmark_subset",
     "GeminiSentimentService",
 ]

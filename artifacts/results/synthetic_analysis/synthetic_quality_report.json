@@ -1,0 +1,31 @@
+{
+  "status": "COMPLETED",
+  "total_records": 500,
+  "class_distribution": {
+    "Negative": 167,
+    "Neutral": 167,
+    "Positive": 166
+  },
+  "length_statistics": {
+    "character_length": {
+      "mean": 274.276,
+      "median": 269.5,
+      "std": 65.07254278111468,
+      "min": 138,
+      "max": 789
+    },
+    "word_length": {
+      "mean": 47.888,
+      "median": 47.0,
+      "std": 11.495888656384944,
+      "min": 21,
+      "max": 127
+    }
+  },
+  "exact_duplicates_within_synthetic": 0,
+  "exact_overlaps_with_real_yelp": 0,
+  "estimated_near_duplicates": 0,
+  "provider": "Google Gemini (Academic Substitution for GPT)",
+  "model_name": "gemini-3.5-flash-lite",
+  "total_rejected": 2
+}

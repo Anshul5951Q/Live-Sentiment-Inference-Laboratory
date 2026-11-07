@@ -40,6 +40,9 @@ htmlcov/
 artifacts/models/bert_checkpoint/
 artifacts/data/yelp_cache/
 artifacts/data/*.feather
+checkpoint_*.json
+*/checkpoint_*.json
+artifacts/results/gemini/response_cache.json
 !artifacts/data/README.md
 !artifacts/models/README.md
 !artifacts/results/README.md

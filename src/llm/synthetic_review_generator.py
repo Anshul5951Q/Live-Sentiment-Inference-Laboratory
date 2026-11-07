@@ -115,8 +115,16 @@ class GeminiSyntheticProvider(BaseSyntheticGeneratorProvider):
         
         try:
             records = json.loads(cleaned_json)
-            if isinstance(records, dict) and "reviews" in records:
-                records = records["reviews"]
+            if isinstance(records, dict):
+                found_list = False
+                for val in records.values():
+                    if isinstance(val, list) and len(val) > 0 and isinstance(val[0], dict) and "review" in val[0]:
+                        records = val
+                        found_list = True
+                        break
+                if not found_list:
+                    if "review" in records:
+                        records = [records]
             if not isinstance(records, list):
                 logger.warning("Gemini returned non-list JSON: %s", type(records))
                 return []
@@ -227,6 +235,7 @@ class SyntheticReviewGenerator:
             
             logger.info("Class '%s': currently have %d / %d needed (gap: %d)", sentiment, current_counts[sentiment], target_count, needed)
             
+            consecutive_errors = 0
             while needed > 0 and batches_run < max_batches_per_class:
                 batches_run += 1
                 batch_n = min(self.batch_size, max(5, needed))
@@ -242,9 +251,19 @@ class SyntheticReviewGenerator:
                         target_label=label,
                         aspect_topic=aspect_topic,
                     )
+                    consecutive_errors = 0
                 except Exception as e:
-                    logger.error("Generation batch failed: %s. Preserving checkpoint and pausing.", str(e))
-                    break
+                    consecutive_errors += 1
+                    logger.error("Generation batch failed (error %d/3): %s. Pausing 10s...", consecutive_errors, str(e))
+                    time.sleep(10.0)
+                    if consecutive_errors >= 3:
+                        logger.error("Exceeded maximum consecutive batch errors for '%s'. Preserving checkpoint.", sentiment)
+                        break
+                    continue
+                    
+                if not candidates:
+                    logger.warning("Empty batch returned for '%s'. Retrying next topic...", sentiment)
+                    continue
                     
                 accepted, rejected = self.validator.validate_batch(candidates)
                 
