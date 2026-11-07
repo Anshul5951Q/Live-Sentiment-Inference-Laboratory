@@ -14,7 +14,46 @@ from src.llm.prompts import (
 )
 
 
-# Model loaders with caching
+# Model availability checkers and loaders
+def check_lr_available() -> tuple[bool, str]:
+    """Check if Logistic Regression artifacts exist."""
+    vec_path = settings.models_dir / "logistic_regression" / "tfidf_vectorizer.joblib"
+    lr_path = settings.models_dir / "logistic_regression" / "logistic_regression.joblib"
+    cal_path = settings.models_dir / "logistic_regression" / "calibrated_logistic_regression.joblib"
+    if vec_path.exists() and lr_path.exists() and cal_path.exists():
+        return True, "Artifacts present"
+    return False, "Logistic Regression artifacts not found in artifacts/models/logistic_regression/ (run scripts/run_lr_pipeline.py)"
+
+
+def check_bilstm_available() -> tuple[bool, str]:
+    """Check if BiLSTM artifacts and TensorFlow runtime are available."""
+    try:
+        import tensorflow as tf
+    except ImportError:
+        return False, "TensorFlow runtime (tensorflow or tensorflow-cpu) is not installed in this environment"
+    
+    tok_path = settings.models_dir / "lstm" / "tokenizer.json"
+    clf_path = settings.models_dir / "lstm" / "lstm_model.keras"
+    if tok_path.exists() and clf_path.exists():
+        return True, "Artifacts present"
+    return False, "BiLSTM model weights (lstm_model.keras, 32MB) or tokenizer.json not found in artifacts/models/lstm/ (run scripts/run_lstm_pipeline.py)"
+
+
+def check_bert_available() -> tuple[bool, str]:
+    """Check if fine-tuned BERT checkpoint and transformers runtime are available."""
+    try:
+        import transformers
+        import torch
+    except ImportError:
+        return False, "Transformers or PyTorch runtime is not installed in this environment"
+    
+    bert_path = settings.models_dir / "bert" / "final_model"
+    bert_root = settings.models_dir / "bert"
+    if (bert_path / "config.json").exists() or (bert_root / "config.json").exists():
+        return True, "Checkpoint present"
+    return False, "Fine-tuned BERT checkpoint (~440MB) not found in artifacts/models/bert/ (train on GPU via notebooks/01_colab_bert_training.ipynb)"
+
+
 @st.cache_resource
 def load_lr_models():
     """Load Logistic Regression models and vectorizer."""
@@ -120,6 +159,11 @@ def render():
 
             try:
                 if "Logistic Regression" in model_choice:
+                    lr_ok, lr_msg = check_lr_available()
+                    if not lr_ok:
+                        st.warning(f"⚠️ {lr_msg}")
+                        return
+
                     vec, lr, cal = load_lr_models()
                     X = vec.transform([review_input])
                     raw_p = lr.predict_proba(X)[0]
@@ -137,6 +181,11 @@ def render():
                     source_badge = "Local Scikit-learn Model"
 
                 elif "Bidirectional LSTM" in model_choice:
+                    bilstm_ok, bilstm_msg = check_bilstm_available()
+                    if not bilstm_ok:
+                        st.info(f"ℹ️ {bilstm_msg}")
+                        return
+
                     tok, clf = load_bilstm_models()
                     seq = tok.transform([review_input])
                     raw_p = clf.predict_proba(seq)[0]
@@ -147,30 +196,26 @@ def render():
                     source_badge = "Local Keras BiLSTM Model"
 
                 elif "BERT" in model_choice:
+                    bert_ok, bert_msg = check_bert_available()
+                    if not bert_ok:
+                        st.info(f"ℹ️ {bert_msg}")
+                        return
+
                     bert_path = settings.models_dir / "bert" / "final_model"
                     bert_root = settings.models_dir / "bert"
-                    
-                    if (bert_path / "config.json").exists() or (bert_root / "config.json").exists():
-                        target_dir = bert_path if (bert_path / "config.json").exists() else bert_root
-                        from transformers import AutoTokenizer, AutoModelForSequenceClassification
-                        import torch
-                        tokenizer = AutoTokenizer.from_pretrained(str(target_dir))
-                        model = AutoModelForSequenceClassification.from_pretrained(str(target_dir))
-                        inputs = tokenizer(review_input, return_tensors="pt", truncation=True, max_length=128)
-                        with torch.no_grad():
-                            logits = model(**inputs).logits
-                            probs = torch.softmax(logits, dim=1).numpy()[0]
-                        pred_label = int(np.argmax(probs))
-                        explanation = f"Fine-tuned BERT transformer weights loaded from {target_dir.name}."
-                        source_badge = "Local Hugging Face BERT"
-                    else:
-                        # Informative fallback using validated discriminative baseline
-                        vec, lr, cal = load_lr_models()
-                        X = vec.transform([review_input])
-                        probs = cal.predict_proba(X)[0]
-                        pred_label = int(np.argmax(probs))
-                        explanation = "Notice: Local BERT fine-tuned weights not found in artifacts/models/bert/. Displaying high-fidelity discriminative proxy. (Train on GPU via notebooks/01_colab_bert_training.ipynb to download full checkpoint)."
-                        source_badge = "Discriminative Proxy (BERT pending Colab download)"
+                    target_dir = bert_path if (bert_path / "config.json").exists() else bert_root
+                    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+                    import torch
+
+                    tokenizer = AutoTokenizer.from_pretrained(str(target_dir))
+                    model = AutoModelForSequenceClassification.from_pretrained(str(target_dir))
+                    inputs = tokenizer(review_input, return_tensors="pt", truncation=True, max_length=128)
+                    with torch.no_grad():
+                        logits = model(**inputs).logits
+                        probs = torch.softmax(logits, dim=1).numpy()[0]
+                    pred_label = int(np.argmax(probs))
+                    explanation = f"Fine-tuned BERT transformer weights loaded from {target_dir.name}."
+                    source_badge = "Local Hugging Face BERT"
                     latency_ms = (time.time() - start_t) * 1000.0
 
                 elif "Gemini" in model_choice:
@@ -180,7 +225,7 @@ def render():
                     mode = "few_shot" if is_few_shot else "zero_shot"
 
                     if not provider.api_key:
-                        st.error("🔑 GEMINI_API_KEY is not configured in your environment or .env file. Please configure your key in .env to execute live Gemini calls.")
+                        st.warning("🔑 GEMINI_API_KEY is not configured. On Streamlit Community Cloud, navigate to App Settings -> Secrets and enter: GEMINI_API_KEY = \"your_api_key_here\". Locally, set it in your .env file.")
                         return
 
                     res = provider.classify_sentiment(review_input, mode=mode)

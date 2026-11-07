@@ -1,0 +1,11 @@
+# Production dependencies
+-r requirements.txt
+
+# Automated Testing & Test Suite
+pytest>=8.0.0
+pytest-mock>=3.12.0
+
+# Dataset Ingestion & GPU Model Training Pipelines
+datasets>=2.18.0
+accelerate>=0.28.0
+

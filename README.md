@@ -2,7 +2,7 @@
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11.9-blue.svg)](https://www.python.org/downloads/release/python-3119/)
 [![Streamlit](https://img.shields.io/badge/Streamlit-1.67.0-FF4B4B.svg)](https://streamlit.io)
-[![Test Suite](https://img.shields.io/badge/Tests-94%20Passed%20(100%25)-brightgreen.svg)]()
+[![Test Suite](https://img.shields.io/badge/Tests-108%20Passed%20(100%25)-brightgreen.svg)]()
 [![Milestone 1-8](https://img.shields.io/badge/Milestones%201--8-Complete-success.svg)]()
 [![Code Architecture](https://img.shields.io/badge/Architecture-Clean%20%26%20Modular-brightgreen.svg)]()
 
@@ -175,3 +175,39 @@ python scripts/run_responsible_ai_audit.py
 | **Common Req 3** | Zero-Shot & Few-Shot Prompt Comparison | `src/llm/gemini_provider.py` | `artifacts/results/gemini/` |
 | **Common Req 4** | Multimodal Vision & Speech Generative Analysis | `src/multimodal/multimodal_service.py` | Streamlit Page 8 (`page_multimodal_lab.py`) |
 | **Common Req 5** | Interactive Multi-Page Web Interface & Deployment | `app.py`, `ui/pages/`, `.streamlit/config.toml`, `Procfile` | Streamlit Web App (`http://localhost:8501`) |
+
+---
+
+## 8. Streamlit Community Cloud Deployment Guide
+
+The application is fully optimized for **Streamlit Community Cloud** with CPU-specific wheel resolution and memory-efficient dependency management.
+
+### Deployment Configuration Steps
+
+1. **Log in to Streamlit Community Cloud:**
+   - Navigate to [share.streamlit.io](https://share.streamlit.io) and sign in with GitHub.
+
+2. **Deploy App Settings:**
+   - **Repository:** `Anshul5951Q/Live-Sentiment-Inference-Laboratory`
+   - **Branch:** `main`
+   - **Main file path:** `app.py`
+   - **App URL:** (Choose your custom subdomain or accept the generated URL)
+
+3. **Select Python Version (Critical):**
+   - Click **"Advanced settings..."** before deploying.
+   - In the **Python version** dropdown, select **`3.11`**.
+   *(Note: Python 3.11 ensures compatibility with pre-compiled wheels for TensorFlow-CPU, PyTorch CPU, NumPy, and SciPy without triggering build-from-source errors).*
+
+4. **Configure Secrets:**
+   - In the **Secrets** text area (or under App Settings -> Secrets post-deployment), add your Gemini API key:
+     ```toml
+     GEMINI_API_KEY = "AIzaSyYourGeminiApiKeyHere"
+     GEMINI_MODEL_NAME = "gemini-3.5-flash-lite"
+     ```
+   - Streamlit secrets are securely read by the application and are never exposed in public repositories or logs.
+
+5. **Cloud Optimization Architecture:**
+   - **Optimized `requirements.txt`:** Utilizes `--extra-index-url https://download.pytorch.org/whl/cpu` and `tensorflow-cpu` to prevent multi-gigabyte CUDA wheel bloat, staying well below Streamlit Cloud's container RAM (1 GB) and disk ceilings.
+   - **Separated `requirements-dev.txt`:** Development, ingestion, and testing dependencies (`pytest`, `datasets`, `accelerate`) are separated from the cloud runtime.
+   - **Bundled Production Artifacts (<2.5 MB):** Pre-calibrated Logistic Regression models, synthetic reviews, and evaluation benchmarks are tracked directly in Git for instant out-of-the-box interactivity.
+   - **Graceful Model Degradation:** Heavy models (Keras BiLSTM 32MB, BERT ~440MB) feature automated availability checks that display informative setup guidance instead of unhandled exceptions or fabricated predictions when weights are pending GPU training.

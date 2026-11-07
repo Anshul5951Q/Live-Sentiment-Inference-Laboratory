@@ -69,7 +69,7 @@ def render():
 
     df = load_split_data(selected_split)
     if df.empty:
-        st.warning(f"Split data not found for {selected_split}.")
+        st.info(f"ℹ️ Split data for '{selected_split}' is not bundled in this lightweight repository to stay within cloud storage limits. To generate full splits locally, execute: `python -m src.data.loader`.")
         return
 
     # Filter dataframe

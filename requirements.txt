@@ -1,31 +1,33 @@
-# Core Streamlit & Web UI
-streamlit>=1.35.0
+# PyTorch CPU Wheel Index for Streamlit Community Cloud (Must precede torch)
+--extra-index-url https://download.pytorch.org/whl/cpu
 
-# Scientific computing & tabular data
-numpy>=1.24.0,<2.0.0
+# Core Web Framework
+streamlit>=1.35.0,<=1.67.0
+
+# Scientific Computing & Data Processing
+numpy>=1.26.0,<3.0.0
 pandas>=2.0.0
 scipy>=1.11.0
+pyarrow>=14.0.0
 
-# Traditional ML & Metrics
+# Machine Learning (Discriminative Baselines)
 scikit-learn>=1.3.0
 joblib>=1.3.0
 
-# Deep Learning (TensorFlow / Keras & PyTorch)
-tensorflow>=2.15.0
+# Deep Learning (CPU Builds for Cloud Resource Limits)
+tensorflow-cpu>=2.15.0
 torch>=2.1.0
 transformers>=4.38.0
-datasets>=2.18.0
-accelerate>=0.28.0
 
-# Generative AI (Google Gemini official SDK: google-genai)
+# Generative AI & LLM Reasoning
 google-genai>=0.1.1
 
-# Visualizations
+# Data Visualization
 plotly>=5.18.0
 matplotlib>=3.8.0
 seaborn>=0.13.0
 
-# Multimodal Audio & Utility
+# Multimodal Audio & Utilities
 gTTS>=2.5.0
 pillow>=10.2.0
 requests>=2.31.0
@@ -36,8 +38,3 @@ pydantic>=2.5.0
 pydantic-settings>=2.1.0
 pyyaml>=6.0.1
 python-dotenv>=1.0.0
-
-# Testing & Quality Assurance
-pytest>=8.0.0
-pytest-mock>=3.12.0
-

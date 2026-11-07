@@ -3,6 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 .venv/
+.test_venv/
 venv/
 ENV/
 env/
@@ -37,15 +38,29 @@ htmlcov/
 *.h5
 *.pt
 *.bin
+artifacts/models/bert/
 artifacts/models/bert_checkpoint/
+artifacts/models/lstm/lstm_model.keras
+artifacts/models/lstm_augmented/*.keras
 artifacts/data/yelp_cache/
 artifacts/data/*.feather
+artifacts/data/train_real.parquet
+artifacts/data/val_real.parquet
+artifacts/data/test_real.parquet
 checkpoint_*.json
 */checkpoint_*.json
 artifacts/results/gemini/response_cache.json
 !artifacts/data/README.md
 !artifacts/models/README.md
 !artifacts/results/README.md
+
+# Whitelist essential lightweight production artifacts (<2.5 MB total)
+!artifacts/models/logistic_regression/*.joblib
+!artifacts/models/logistic_regression_augmented/*.joblib
+!artifacts/models/logistic_regression_aug_50/*.joblib
+!artifacts/data/synthetic_reviews.parquet
+!artifacts/data/gemini_benchmark_300.parquet
+!artifacts/data/eval_subset_real.parquet
 
 # Streamlit local state & secrets
 .streamlit/secrets.toml

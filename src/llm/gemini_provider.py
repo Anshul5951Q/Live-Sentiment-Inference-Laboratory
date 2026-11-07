@@ -21,6 +21,41 @@ from src.utils.file_io import save_json, load_json
 logger = setup_logger(__name__)
 
 
+def resolve_gemini_api_key(explicit_key: Optional[str] = None) -> Optional[str]:
+    """Resolve GEMINI_API_KEY from explicit param, os.environ, Streamlit secrets, or settings."""
+    if explicit_key:
+        return explicit_key.strip()
+    env_key = os.getenv("GEMINI_API_KEY")
+    if env_key:
+        return env_key.strip()
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets"):
+            if "GEMINI_API_KEY" in st.secrets:
+                return str(st.secrets["GEMINI_API_KEY"]).strip()
+            if "gemini" in st.secrets and "api_key" in st.secrets["gemini"]:
+                return str(st.secrets["gemini"]["api_key"]).strip()
+    except Exception:
+        pass
+    return settings.gemini_api_key.strip() if settings.gemini_api_key else None
+
+
+def resolve_gemini_model_name(explicit_model: Optional[str] = None) -> str:
+    """Resolve GEMINI_MODEL_NAME from explicit param, os.environ, Streamlit secrets, or settings."""
+    if explicit_model:
+        return explicit_model.strip()
+    env_model = os.getenv("GEMINI_MODEL_NAME")
+    if env_model:
+        return env_model.strip()
+    try:
+        import streamlit as st
+        if hasattr(st, "secrets") and "GEMINI_MODEL_NAME" in st.secrets:
+            return str(st.secrets["GEMINI_MODEL_NAME"]).strip()
+    except Exception:
+        pass
+    return settings.gemini_model_name
+
+
 class GeminiProvider(BaseLLMProvider):
     """Google Gemini sentiment classification provider with exponential backoff and caching."""
 
@@ -34,8 +69,9 @@ class GeminiProvider(BaseLLMProvider):
         backoff_max: float = settings.gemini_backoff_max_seconds,
         rate_limit_delay: float = 4.0,
     ):
-        self.api_key = api_key or os.getenv("GEMINI_API_KEY") or settings.gemini_api_key
-        super().__init__(model_name=model_name or os.getenv("GEMINI_MODEL_NAME") or settings.gemini_model_name)
+        self.api_key = resolve_gemini_api_key(api_key)
+        resolved_model = resolve_gemini_model_name(model_name)
+        super().__init__(model_name=resolved_model)
         
         self.cache_dir = cache_dir or (settings.results_dir / "gemini")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
